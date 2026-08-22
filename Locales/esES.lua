@@ -142,87 +142,45 @@ PBM_L["Notes"] = "Notas"
 -- ============================================================
 -- PBM_CharSheet.lua
 -- ============================================================
--- Spec/Templates Button & Tooltips
 PBM_L["Templates"] = "Plantillas"
-PBM_L["Set Talents"] = "Establecer Talentos"
+PBM_L["Set Talents"] = "Establecer talentos"
 PBM_L["Select a talent template for this Bot"] = "Selecciona una plantilla de talentos para este Bot"
-
--- Buttons & Controls
 PBM_L["Refresh"] = "Refrescar"
 PBM_L["Strategies"] = "Estrategias"
 PBM_L["Open Talents"] = "Abrir Talentos"
+PBM_L["Opens Window Behind Tracker"] = "Abre la ventana detrás del Rastreador"
 PBM_L["Open Inventory"] = "Abrir Inventario"
 PBM_L["Open Spellbook"] = "Abrir Libro de Hechizos"
-PBM_L["Opens Window Behind Tracker"] = "Abre la ventana detrás del Rastreador"
-
--- Tooltips: Food, Loot, Gather, PvP
 PBM_L["Food and Drink"] = "Comida y Bebida"
-PBM_L["Eat and drink after combat"] = "Comer y beber tras el combate"
-PBM_L["Bot eats food and drinks water to restore"] = "El bot come y bebe para restaurar"
+PBM_L["Eat and drink after combat"] = "Comer y beber después del combate"
+PBM_L["Bot eats food and drinks water to restore"] = "El bot come comida y bebe agua para restaurar"
 PBM_L["health"] = "salud"
 PBM_L["mana"] = "maná"
-PBM_L["between fights."] = "entre combates."
-
 PBM_L["Loot"] = "Botín"
 PBM_L["Auto loot bodies"] = "Despojar cuerpos automáticamente"
-PBM_L["Bot loots killed enemies automatically."] = "El bot despoja a los enemigos muertos automáticamente."
-
+PBM_L["Bot loots killed enemies automatically."] = "El bot despoja automáticamente a los enemigos muertos."
 PBM_L["Gather"] = "Recolectar"
 PBM_L["Gather resource nodes"] = "Recolectar nodos de recursos"
 PBM_L["Bot harvests nearby resource nodes."] = "El bot recolecta los nodos de recursos cercanos."
-
-PBM_L["PvP"] = "PvP"
-PBM_L["Activates player targeting."] = "Activa el marcado de jugadores."
+PBM_L["PvP"] = "JcJ"
+PBM_L["Activates player targeting."] = "Activa la selección de jugadores como objetivo."
 PBM_L["Rotations are unchanged."] = "Las rotaciones no cambian."
-
--- Stats & Tooltips Labels
-PBM_L["Bag"] = "Bolsa"
 PBM_L["Durability"] = "Durabilidad"
-
--- Reset Buttons & Tooltips
-PBM_L["Reset"] = "Reiniciar"
+PBM_L["Bag"] = "Bolsa"
+PBM_L["Note:"] = "Nota:"
+PBM_L["During raid encounters, strategies are based on spec and are automatically overwritten. To change bot behavior, use a different template or spec."] = "Durante encuentros de banda, las estrategias se basan en la especialización y se sobrescriben automáticamente. Para cambiar el comportamiento del bot, usa una plantilla o especialización diferente."
+PBM_L["The Strategy List on the right is what the bot actually uses. The center buttons are for changes/visual reference. Confirm the list reflects your setup."] = "La lista de estrategias de la derecha es la que el bot realmente utiliza. Los botones centrales son para cambios/referencia visual. Confirma que la lista refleje tu configuración."
+PBM_L["For quick setup, use the Templates menu in the top-left corner of each character tab. This will automatically configure both talents and strategies for you."] = "Para una configuración rápida, usa el menú Plantillas en la esquina superior izquierda de cada pestaña de personaje. Esto configurará automáticamente los talentos y estrategias por ti."
+PBM_L["** Strategies are subject to change."] = "** Las estrategias están sujetas a cambios."
+PBM_L["Reset CO Strategies"] = "Restablecer estrategias de CO"
+PBM_L["Resets combat strategies to defaults."] = "Restablece las estrategias de combate a los valores predeterminados."
+PBM_L["Non-combat strategies are preserved."] = "Se conservan las estrategias fuera de combate."
+PBM_L["Reset NC Strategies"] = "Restablecer estrategias de NC"
+PBM_L["Resets non-combat strategies to defaults."] = "Restablece las estrategias fuera de combate a los valores predeterminados."
+PBM_L["Combat strategies are preserved."] = "Se conservan las estrategias de combate."
+PBM_L["Reset"] = "Restablecer"
 PBM_L["CO"] = "CO"
 PBM_L["NC"] = "NC"
-PBM_L["Reset CO Strategies"] = "Reiniciar Estrategias CO"
-PBM_L["Resets combat strategies to defaults."] = "Reinicia las estrategias de combate a los valores por defecto."
-PBM_L["Non-combat strategies are preserved."] = "Se conservan las estrategias fuera de combate."
-PBM_L["Reset NC Strategies"] = "Reiniciar Estrategias NC"
-PBM_L["Resets non-combat strategies to defaults."] = "Reinicia las estrategias fuera de combate a los valores por defecto."
-PBM_L["Combat strategies are preserved."] = "Se conservan las estrategias de combate."
-
--- Notes
-PBM_L["Note: For quick setup, use the Templates menu in the top-left corner of each character tab. This will automatically configure both talents and strategies for you."] = "Nota: Para una configuración rápida, usa el menú Plantillas en la esquina superior izquierda de cada pestaña. Esto configurará automáticamente los talentos y estrategias."
-PBM_L["Note: The Strategy List on the right is what the bot actually uses. The center buttons are for changes/visual reference. Confirm the list reflects your setup."] = "Nota: La lista de estrategias a la derecha es la que realmente usa el bot. Los botones centrales son para cambios/referencia visual. Confirma que la lista refleja tu configuración."
-PBM_L["Note: During raid encounters, strategies are based on spec and are automatically overwritten. To change bot behavior, use a different template or spec."] = "Nota: En encuentros de banda, las estrategias se basan en la especialización y se sobrescriben automáticamente. Para cambiar el comportamiento, usa otra plantilla o especialización."
-PBM_L["** Strategies are subject to change."] = "** Las estrategias están sujetas a cambios."
-
--- PBM_ClassTab.lua
-PBM_L["Drag to reorder"] = "Arrastrar para reordenar"
-PBM_L["No spec spec set"] = "Sin especialización" -- Para la comprobación de spec vacío
-PBM_L["No spec set"] = "Sin especialización"
-PBM_L["+ Add to Raid"] = "+ Añadir a Banda"
-PBM_L["Adds to the Raid tab."] = "Añade a la pestaña de Banda."
-PBM_L["Left-click to add to raid."] = "Clic izquierdo para añadir a banda."
-PBM_L["Right-click to remove."] = "Clic derecho para eliminar."
-PBM_L["> Invite to Group"] = "> Invitar al Grupo"
-PBM_L["Left-click to invite to group."] = "Clic izquierdo para invitar al grupo."
-PBM_L["Remove Character"] = "Eliminar personaje"
-PBM_L["Removes from tracker."] = "Elimina del rastreador."
-PBM_L["Prof."] = "Prof."
-PBM_L["Need"] = "Necesita"
-PBM_L["removed from raid slot"] = "eliminado de la casilla de banda"
-PBM_L["is already in the Raid."] = "ya está en la Banda."
-PBM_L["Raid"] = "Banda"
-PBM_L["is full"] = "está llena"
-PBM_L["Added"] = "Añadido"
-PBM_L["to Raid slot"] = "a la casilla de banda"
-PBM_L["added to raid slot"] = "añadido a la casilla de banda"
-PBM_L["Removed"] = "Eliminado"
-PBM_L["from bots."] = "de los bots."
-PBM_L["Inviting"] = "Invitando a"
-PBM_L["to group..."] = "al grupo..."
-PBM_L["Invited"] = "Invitado"
-PBM_L["Ignored Spell List"] = "Lista de hechizos ignorados"
 
 -- ============================================================
 -- PBM_Commands.lua

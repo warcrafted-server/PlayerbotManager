@@ -1,30 +1,31 @@
 PBM = PBM or {}
+local PBM_L = PBM_L or function(key) return key end
 
 -- ─────────────────────────────────────────────────────────────────────────────
 --  PBM_CharSheet.lua
---  Superposició de la fitxa de personatge compartida utilitzada pels 10 menús de classe.
+--  Shared character-sheet overlay used by all 10 class menus.
 --
 --  PBM.CreateCharSheet(config)  → menu, catcher
---    Construeix el marc de superposició complet i omple tots els components compartits.
---    Cada fitxer de classe ho crida una vegada, i després afegeix el seu propi arbre d'estratègia a sobre.
+--    Builds the full overlay frame and populates every shared component.
+--    Each class file calls this once, then adds its own strategy tree on top.
 --
 --  config = {
---    menuName    = "LichborneDruidMenu",     -- nom del marc global (requerit per ClassTabs)
+--    menuName    = "LichborneDruidMenu",     -- global frame name (required by ClassTabs)
 --    catcherName = "LichborneDruidCatcher",
---    className   = "Druid",                  -- passat a InstallTieredStratDisplay
---    classHex    = "FF7D0A",                 -- color de classe (sense # inicial)
---    leftExt     = 5,                        -- píxels que la superposició s'estén a l'esquerra de la col. iLvl
+--    className   = "Druid",                  -- passed to InstallTieredStratDisplay
+--    classHex    = "FF7D0A",                 -- class color (no leading #)
+--    leftExt     = 5,                        -- pixels the overlay extends left of iLvl col
 --    overlayW    = number,
 --    overlayH    = number,
 --    talentSpecs = { {label, spec, wowSpec, icon}, ... },
---    hideCallback = fn,                      -- cridat en prémer ESC / fer clic fora
+--    hideCallback = fn,                      -- called on ESC / click-away
 --  }
 --
 --  PBM.HideCharSheet(menu, catcher)
 --  PBM.ShowCharSheet(menu, catcher, row, leftExt)
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- ── Auxiliar de temporitzador ────────────────────────────────────────────────
+-- ── Timer helper ─────────────────────────────────────────────────────────────
 local function PBM_TimerAfter(delay, callback)
     if C_Timer and C_Timer.After then
         return C_Timer.After(delay, callback)
@@ -40,7 +41,7 @@ local function PBM_TimerAfter(delay, callback)
     end)
 end
 
--- ── Plantilles de fons compartides ───────────────────────────────────────────
+-- ── Shared backdrop templates ─────────────────────────────────────────────────
 local OVERLAY_BD = {
     bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
     edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -54,7 +55,7 @@ local HDR_CELL_BD = {
     insets = {left=1, right=1, top=1, bottom=1},
 }
 
--- ── Mides de les icones ──────────────────────────────────────────────────────
+-- ── Icon sizes ────────────────────────────────────────────────────────────────
 local ICON_SIZE = 26
 local ICON_GAP  = 4
 
@@ -72,7 +73,7 @@ function PBM.CreateCharSheet(config)
     local talentSpecs = config.talentSpecs or {}
     local hideCallback = config.hideCallback
 
-    -- ── Catcher (captura de clics a fora) ────────────────────────────────────
+    -- ── Catcher (click-away) ─────────────────────────────────────────────────
     local catcher = CreateFrame("Button", catcherName, UIParent)
     catcher:SetAllPoints(UIParent)
     catcher:SetFrameStrata("HIGH")
@@ -81,7 +82,7 @@ function PBM.CreateCharSheet(config)
     catcher:SetScript("OnMouseDown", hideCallback)
     catcher:Hide()
 
-    -- ── Panell de superposició ────────────────────────────────────────────────
+    -- ── Overlay panel ────────────────────────────────────────────────────────
     local menu = CreateFrame("Frame", menuName, UIParent)
     menu:SetFrameStrata("TOOLTIP")
     menu:EnableMouse(true)
@@ -107,7 +108,7 @@ function PBM.CreateCharSheet(config)
         if catcher then catcher:Hide() end
     end)
 
-    -- ── Fila de la capçalera (barra d'equipament) ────────────────────────────
+    -- ── Header row (gear bar) ────────────────────────────────────────────────
     local HDR_H = PBM.ROW_HEIGHT
     local hdr   = {}
 
@@ -169,7 +170,7 @@ function PBM.CreateCharSheet(config)
     PBM.InstallGearTooltips(menu, hdr)
     menu.hdr = hdr
 
-    -- ── Icona d'especialització (botó de Plantilles) ─────────────────────────
+    -- ── Spec icon (Templates button) ─────────────────────────────────────────
     local SPEC_BTN_SIZE = 39
     local specBtn = CreateFrame("Button", nil, menu)
     specBtn:SetSize(SPEC_BTN_SIZE, SPEC_BTN_SIZE)
@@ -185,9 +186,9 @@ function PBM.CreateCharSheet(config)
     specLabel:SetFont("Fonts\\FRIZQT__.TTF", 7)
     specLabel:SetPoint("BOTTOM", specBtn, "TOP", 0, 2)
     specLabel:SetTextColor(1, 0.82, 0)
-    specLabel:SetText("Plantilles")
+    specLabel:SetText(PBM_L["Templates"])
 
-    -- ── Desplegable d'especialització de talents ─────────────────────────────
+    -- ── Talent spec dropdown ──────────────────────────────────────────────────
     local talentsMenu = CreateFrame("Frame", nil, menu)
     talentsMenu:SetFrameStrata("TOOLTIP")
     talentsMenu:SetFrameLevel(menu:GetFrameLevel() + 10)
@@ -252,13 +253,13 @@ function PBM.CreateCharSheet(config)
     specBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
-        GameTooltip:AddLine("Establir Talents", 1, 0.82, 0)
-        GameTooltip:AddLine("Selecciona una plantilla de talents per a aquest Bot", 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Set Talents"], 1, 0.82, 0)
+        GameTooltip:AddLine(PBM_L["Select a talent template for this Bot"], 1, 1, 1)
         GameTooltip:Show()
     end)
     specBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
-    -- ── Etiquetes d'informació general (Who) ──────────────────────────────────
+    -- ── Who-info labels ───────────────────────────────────────────────────────
     local whoLine1 = menu:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     whoLine1:SetPoint("TOPLEFT", specBtn, "TOPRIGHT", 8, 0)
     whoLine1:SetTextColor(1, 1, 1)
@@ -275,7 +276,7 @@ function PBM.CreateCharSheet(config)
     menu.whoLine2 = whoLine2
     menu.whoLine3 = whoLine3
 
-    -- ── Etiquetes d'estadístiques ──────────────────────────────────────────────
+    -- ── Stat labels ───────────────────────────────────────────────────────────
     local statLine1 = menu:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     statLine1:SetPoint("TOPLEFT", specBtn, "BOTTOMLEFT", 0, -6)
     statLine1:SetTextColor(1, 1, 1)
@@ -292,7 +293,7 @@ function PBM.CreateCharSheet(config)
     menu.statLine2 = statLine2
     menu.statLine3 = statLine3
 
-    -- ── Botó d'actualització (A la dreta de les línies d'estats, centrat verticalment)
+    -- ── Refresh button (right of stat lines, centered vertically) ────────────
     local refreshBtn = CreateFrame("Button", nil, menu)
     refreshBtn:SetSize(58, 18)
     refreshBtn:SetPoint("TOPLEFT", specBtn, "BOTTOMRIGHT", 52, -16)
@@ -310,7 +311,7 @@ function PBM.CreateCharSheet(config)
     refreshLbl:SetTextColor(0.78, 0.61, 0.23, 1)
     refreshLbl:SetAllPoints()
     refreshLbl:SetJustifyH("CENTER")
-    refreshLbl:SetText("Actualitza")
+    refreshLbl:SetText(PBM_L["Refresh"])
     refreshBtn:SetScript("OnClick", function()
         if menu.clearStratDisplay then menu.clearStratDisplay() end
         local botName = menu.botName or ""
@@ -323,20 +324,20 @@ function PBM.CreateCharSheet(config)
         end
     end)
 
-    -- ── Etiqueta d'estratègies ────────────────────────────────────────────────
+    -- ── Strategies label ──────────────────────────────────────────────────────
     local strategyLabel = menu:CreateFontString(nil, "OVERLAY")
     strategyLabel:SetFont("Fonts\\FRIZQT__.TTF", 24, "OUTLINE")
     strategyLabel:SetTextColor(0.78, 0.61, 0.23, 1)
-    strategyLabel:SetText("Estratègies")
+    strategyLabel:SetText(PBM_L["Strategies"])
     strategyLabel:SetPoint("TOP", menu, "TOP", 0, -(HDR_H + 30))
     strategyLabel:SetWidth(overlayW - 60)
     strategyLabel:SetJustifyH("CENTER")
 
-    -- ── Llista d'estratègies (columna dreta) ──────────────────────────────────
+    -- ── Strat list (right column) ─────────────────────────────────────────────
     PBM.InstallTieredStratDisplay(menu, className)
 
-    -- ── Barra vertical de 6 botons ────────────────────────────────────────────
-    -- Talents / Inventari / Llibre d'hechizos (activar) + Menjar / Botí / Recol·lectar (commutar NC)
+    -- ── 6-button vertical bar ─────────────────────────────────────────────────
+    -- Talent / Inventory / Spellbook (activate) + Food / Loot / Gather (toggle NC)
     local function MakeLeftBtn(anchorFrame, anchorPoint, ox, oy, iconPath)
         local btn = CreateFrame("Button", nil, menu)
         btn:SetSize(ICON_SIZE, ICON_SIZE)
@@ -359,12 +360,12 @@ function PBM.CreateCharSheet(config)
         if btn.icon then btn.icon:SetDesaturated(true) end
     end
 
-    -- Fila 1: Talents (activar)
+    -- Row 1: Talent (activate)
     local talentBtn = MakeLeftBtn(statLine3, "BOTTOMLEFT", 20, -15, "Ability_Marksmanship")
     talentBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:AddLine("Obrir Talents", 0.78, 0.61, 0.23)
-        GameTooltip:AddLine("Obre la finestra darrere del Tracker", 1, 0.2, 0.2)
+        GameTooltip:AddLine(PBM_L["Open Talents"], 0.78, 0.61, 0.23)
+        GameTooltip:AddLine(PBM_L["Opens Window Behind Tracker"], 1, 0.2, 0.2)
         GameTooltip:Show()
     end)
     talentBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -373,12 +374,12 @@ function PBM.CreateCharSheet(config)
         if PBM.OpenTalentWindow then PBM.OpenTalentWindow(bot) end
     end)
 
-    -- Fila 2: Inventari (activar)
+    -- Row 2: Inventory (activate)
     local invBtn = MakeLeftBtn(talentBtn, "BOTTOMLEFT", 0, -ICON_GAP, "INV_Misc_Bag_08")
     invBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:AddLine("Obrir Inventari", 0.78, 0.61, 0.23)
-        GameTooltip:AddLine("Obre la finestra darrere del Tracker", 1, 0.2, 0.2)
+        GameTooltip:AddLine(PBM_L["Open Inventory"], 0.78, 0.61, 0.23)
+        GameTooltip:AddLine(PBM_L["Opens Window Behind Tracker"], 1, 0.2, 0.2)
         GameTooltip:Show()
     end)
     invBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -387,12 +388,12 @@ function PBM.CreateCharSheet(config)
         if PBM.OpenInventoryWindow then PBM.OpenInventoryWindow(bot) end
     end)
 
-    -- Fila 3: Llibre de conjurs (activar)
+    -- Row 3: Spellbook (activate)
     local spellBtn = MakeLeftBtn(invBtn, "BOTTOMLEFT", 0, -ICON_GAP, "INV_Misc_Book_09")
     spellBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-        GameTooltip:AddLine("Obrir Llibre de conjurs", 0.78, 0.61, 0.23)
-        GameTooltip:AddLine("Obre la finestra darrere del Tracker", 1, 0.2, 0.2)
+        GameTooltip:AddLine(PBM_L["Open Spellbook"], 0.78, 0.61, 0.23)
+        GameTooltip:AddLine(PBM_L["Opens Window Behind Tracker"], 1, 0.2, 0.2)
         GameTooltip:Show()
     end)
     spellBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -401,17 +402,17 @@ function PBM.CreateCharSheet(config)
         if PBM.OpenSpellbookWindow then PBM.OpenSpellbookWindow(bot) end
     end)
 
-    -- Fila 4: Menjar i Beure (commutar NC)
+    -- Row 4: Food and Drink (toggle NC)
     local treeFoodBtn = MakeLeftBtn(spellBtn, "BOTTOMLEFT", 0, -ICON_GAP, "INV_Drink_24_SealWhey")
     IconOff(treeFoodBtn)
     treeFoodBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffffcc00Menjar i Beure|r |cff999999- |r|cffC79C3Bfood|r |cff00cc00NC|r", 1, 0.82, 0)
-        GameTooltip:AddLine("|cffffcc00Menjar i beure després del combat|r", 1, 1, 1)
-        GameTooltip:AddLine("El Bot menja i beu aigua per a restaurar", 1, 1, 1)
-        GameTooltip:AddLine("|cffffcc00salut|r i |cff3A8FC4manà|r entre combats.", 1, 1, 1)
+        GameTooltip:SetText("|cffffcc00" .. PBM_L["Food and Drink"] .. "|r |cff999999- |r|cffC79C3Bfood|r |cff00cc00NC|r", 1, 0.82, 0)
+        GameTooltip:AddLine("|cffffcc00" .. PBM_L["Eat and drink after combat"] .. "|r", 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Bot eats food and drinks water to restore"], 1, 1, 1)
+        GameTooltip:AddLine("|cffffcc00" .. PBM_L["health"] .. "|r " .. string.lower(PBM_L["and"] or "y") .. " |cff3A8FC4" .. PBM_L["mana"] .. "|r " .. string.lower(PBM_L["between fights."] or "entre combates."), 1, 1, 1)
         GameTooltip:Show()
     end)
     treeFoodBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -426,16 +427,16 @@ function PBM.CreateCharSheet(config)
     end)
     menu.treeFoodBtn = treeFoodBtn
 
-    -- Fila 5: Botí / Saqueig (commutar NC)
+    -- Row 5: Loot (toggle NC)
     local treeLootBtn = MakeLeftBtn(treeFoodBtn, "BOTTOMLEFT", 0, -ICON_GAP, "INV_Misc_Coin_16")
     IconOff(treeLootBtn)
     treeLootBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffffcc00Botí|r |cff999999- |r|cffC79C3Bloot|r |cff00cc00NC|r", 1, 0.82, 0)
-        GameTooltip:AddLine("|cffffcc00Saquejar cossos automàticament|r", 1, 1, 1)
-        GameTooltip:AddLine("El Bot es queda el botí dels enemics morts automàticament.", 1, 1, 1)
+        GameTooltip:SetText("|cffffcc00" .. PBM_L["Loot"] .. "|r |cff999999- |r|cffC79C3Bloot|r |cff00cc00NC|r", 1, 0.82, 0)
+        GameTooltip:AddLine("|cffffcc00" .. PBM_L["Auto loot bodies"] .. "|r", 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Bot loots killed enemies automatically."], 1, 1, 1)
         GameTooltip:Show()
     end)
     treeLootBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -450,16 +451,16 @@ function PBM.CreateCharSheet(config)
     end)
     menu.treeLootBtn = treeLootBtn
 
--- Fila 6: Recol·lectar (commutar NC)
+    -- Row 6: Gather (toggle NC)
     local treeGatherBtn = MakeLeftBtn(treeLootBtn, "BOTTOMLEFT", 0, -ICON_GAP, "Trade_Mining")
     IconOff(treeGatherBtn)
     treeGatherBtn:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffffcc00Recol·lectar|r |cff999999- |r|cffC79C3Bgather|r |cff00cc00NC|r", 1, 0.82, 0)
-        GameTooltip:AddLine("|cffffcc00Recol·lectar nodes de recursos|r", 1, 1, 1)
-        GameTooltip:AddLine("El Bot recol·lecta els nodes de recursos propers.", 1, 1, 1)
+        GameTooltip:SetText("|cffffcc00" .. PBM_L["Gather"] .. "|r |cff999999- |r|cffC79C3Bgather|r |cff00cc00NC|r", 1, 0.82, 0)
+        GameTooltip:AddLine("|cffffcc00" .. PBM_L["Gather resource nodes"] .. "|r", 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Bot harvests nearby resource nodes."], 1, 1, 1)
         GameTooltip:Show()
     end)
     treeGatherBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -474,9 +475,9 @@ function PBM.CreateCharSheet(config)
     end)
     menu.treeGatherBtn = treeGatherBtn
 
-    -- ── Commutador de PvP (universal — apareix a tots els menús de classe) ──
-    local PVP_HDR_W = ICON_SIZE + 8   -- La capçalera de 34px centra el botó de 26px
-    local pvpHdrOffX = 72              -- Píxels a la dreta de la vora esquerra de talentBtn
+    -- ── PvP toggle (universal — appears in all class menus) ──────────────────
+    local PVP_HDR_W = ICON_SIZE + 8   -- 34px header centers the 26px button
+    local pvpHdrOffX = 72              -- pixels right of talentBtn's left edge
 
     do
         local pvpBox = CreateFrame("Frame", nil, menu)
@@ -487,10 +488,10 @@ function PBM.CreateCharSheet(config)
         pvpBox:SetBackdropBorderColor(0.78, 0.61, 0.23, 0.9)
         local fs = pvpBox:CreateFontString(nil, "OVERLAY")
         fs:SetFont("Fonts\\FRIZQT__.TTF", 9, "OUTLINE")
-        fs:SetTextColor(0.93, 0.27, 0.20, 1)   -- vermell (ee4433)
+        fs:SetTextColor(0.93, 0.27, 0.20, 1)   -- red (ee4433)
         fs:SetAllPoints()
         fs:SetJustifyH("CENTER")
-        fs:SetText("PvP")
+        fs:SetText(PBM_L["PvP"])
     end
 
     local treePvpBtn = CreateFrame("Button", nil, menu)
@@ -509,9 +510,9 @@ function PBM.CreateCharSheet(config)
         GameTooltip:SetOwner(self, "ANCHOR_TOP")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffffff00PvP|r |cff999999- |r|cffee4433PvP|r |cffffcc00NC|r")
-        GameTooltip:AddLine("Activa la selecció de jugadors com a objectiu.", 1, 1, 1)
-        GameTooltip:AddLine("Les rotacions no canvien.", 1, 1, 1)
+        GameTooltip:SetText("|cffffff00" .. PBM_L["PvP"] .. "|r |cff999999- |r|cffee4433PvP|r |cffffcc00NC|r")
+        GameTooltip:AddLine(PBM_L["Activates player targeting."], 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Rotations are unchanged."], 1, 1, 1)
         GameTooltip:Show()
     end)
     treePvpBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -526,7 +527,7 @@ function PBM.CreateCharSheet(config)
     end)
     menu.treePvpBtn = treePvpBtn
 
-    -- ── Base resetSharedIcons (el fitxer de classe ho estén per als botons de l'arbre) ─
+    -- ── Base resetSharedIcons (class file extends this for tree buttons) ───────
     menu.resetSharedIcons = function()
         IconOff(treeFoodBtn)
         IconOff(treeLootBtn)
@@ -534,7 +535,7 @@ function PBM.CreateCharSheet(config)
         IconOff(treePvpBtn)
     end
 
-    -- ── Base onStrategyUpdate (gestiona NC food/loot/gather + estat de CO pvp) ─
+    -- ── Base onStrategyUpdate (handles NC food/loot/gather + CO pvp state) ──────
     local _baseSU = menu.onStrategyUpdate
     menu.onStrategyUpdate = function(stratType, activeSet)
         if _baseSU then _baseSU(stratType, activeSet) end
@@ -550,7 +551,7 @@ function PBM.CreateCharSheet(config)
 
     -- ── onWhoResponse ─────────────────────────────────────────────────────────
     menu.onWhoResponse = function(sender, msg)
-        local race    = msg:match("([%a ]+) %[" )
+        local race    = msg:match("([%a ]+) %[")
         local spec    = msg:match("%] ([%a ]+) %(")
         local talents = msg:match("%((%d+/%d+/%d+)%)")
         local class   = msg:match("%d+/%d+/%d+%) (%a+) %(%d+ lvl%)")
@@ -570,11 +571,11 @@ function PBM.CreateCharSheet(config)
         menu.statLine1:SetText(gold and ("|cffFFD100" .. gold .. "g|r") or "")
         if bag then
             local used, total = bag:match("(%d+)/(%d+)")
-            -- Utilitza el color exacte que el playerbot ha aplicat al recompte de la bossa en el seu xat privat.
-            -- rawMsg encara té el codi |cAARRGGBB immediatament abans del valor "N/N".
+            -- Use the exact color the playerbot applied to the bag count in its whisper.
+            -- rawMsg still has the |cAARRGGBB code immediately before the "N/N" value.
             local bagHex = rawMsg and rawMsg:match("|c(%x%x%x%x%x%x%x%x)%d+/%d+")
             local colorTag = bagHex and ("|c" .. bagHex) or "|cffFFFFFF"
-            menu.statLine2:SetText(colorTag .. used .. "/" .. total .. "|r|cffFFFFFF Bossa|r")
+            menu.statLine2:SetText(colorTag .. used .. "/" .. total .. "|r|cffFFFFFF " .. PBM_L["Bag"] .. "|r")
         else
             menu.statLine2:SetText("")
         end
@@ -582,17 +583,17 @@ function PBM.CreateCharSheet(config)
             local t = (tonumber(dur) or 0) / 100
             local r = math.floor(math.min(1, t * 2) * 255)
             local g = math.floor(math.min(1, (1 - t) * 2) * 255)
-            menu.statLine3:SetText("|cff" .. string.format("%02x%02x00", r, g) .. dur .. "% Durabilitat|r")
+            menu.statLine3:SetText("|cff" .. string.format("%02x%02x00", r, g) .. dur .. "% " .. PBM_L["Durability"] .. "|r")
         else
             menu.statLine3:SetText("")
         end
     end
 
-    -- ── Notes inferiors (alineades a l'esquerra, a la dreta de Ignored Spell List, línia única) ──
+    -- ── Bottom notes (left-aligned, right of Ignored Spell List, single line) ──
     local noteFont  = "Fonts\\FRIZQT__.TTF"
     local noteSize  = 9
     local noteColor = { 0.70, 0.70, 0.70, 1 }
-    local noteX     = 138   -- Deixa espai per a la llista d'hechizos ignorats de 115px (a x=15) + espaiat
+    local noteX     = 138   -- clears the 115px ignored-spell-list (at x=15) + gap
 
     local note2 = menu:CreateFontString(nil, "OVERLAY")
     note2:SetFont(noteFont, noteSize, "OUTLINE")
@@ -600,7 +601,7 @@ function PBM.CreateCharSheet(config)
     note2:SetWordWrap(false)
     note2:SetJustifyH("LEFT")
     note2:SetPoint("BOTTOMLEFT", menu, "BOTTOMLEFT", noteX, 8)
-    note2:SetText("|cffFFD100Nota:|r Durant els trobades de banda, les estratègies es basen en l'especialització i es sobreescriuen automàticament. Per canviar el comportament del bot, utilitza una altra plantilla o especialització.")
+    note2:SetText("|cffFFD100" .. PBM_L["Note:"] .. "|r " .. PBM_L["During raid encounters, strategies are based on spec and are automatically overwritten. To change bot behavior, use a different template or spec."])
 
     local note1 = menu:CreateFontString(nil, "OVERLAY")
     note1:SetFont(noteFont, noteSize, "OUTLINE")
@@ -608,7 +609,7 @@ function PBM.CreateCharSheet(config)
     note1:SetWordWrap(false)
     note1:SetJustifyH("LEFT")
     note1:SetPoint("BOTTOMLEFT", note2, "TOPLEFT", 0, 4)
-    note1:SetText("|cffFFD100Nota:|r La llista d'estratègies de la dreta és la que utilitza realment el bot. Els botons centrals són per a canvis/referència visual. Confirma que la llista reflecteix la teva configuració.")
+    note1:SetText("|cffFFD100" .. PBM_L["Note:"] .. "|r " .. PBM_L["The Strategy List on the right is what the bot actually uses. The center buttons are for changes/visual reference. Confirm the list reflects your setup."])
 
     local note0 = menu:CreateFontString(nil, "OVERLAY")
     note0:SetFont(noteFont, noteSize, "OUTLINE")
@@ -616,16 +617,16 @@ function PBM.CreateCharSheet(config)
     note0:SetWordWrap(false)
     note0:SetJustifyH("LEFT")
     note0:SetPoint("BOTTOMLEFT", note1, "TOPLEFT", 0, 4)
-    note0:SetText("|cffFFD100Nota:|r Per a una configuració ràpida, utilitza el menú Plantilles a la cantonada superior esquerra de cada pestanya de personatge. Això configurarà automàticament tant els talents com les estratègies per a tu.")
+    note0:SetText("|cffFFD100" .. PBM_L["Note:"] .. "|r " .. PBM_L["For quick setup, use the Templates menu in the top-left corner of each character tab. This will automatically configure both talents and strategies for you."])
 
     local stratNoteLabel = menu:CreateFontString(nil, "OVERLAY")
     stratNoteLabel:SetFont("Fonts\\FRIZQT__.TTF", 9, "OUTLINE")
-    stratNoteLabel:SetText("|cffff4444** Les estratègies estan subjectes a canvis.|r")
+    stratNoteLabel:SetText(PBM_L["** Strategies are subject to change."])
     stratNoteLabel:SetPoint("BOTTOMLEFT",  menu, "BOTTOMLEFT",   8, 52)
     stratNoteLabel:SetPoint("BOTTOMRIGHT", menu, "BOTTOMRIGHT", -8, 52)
     stratNoteLabel:SetJustifyH("CENTER")
 
-    -- ── Botons de reinici de CO ! / NC ! (a sobre de les notes) ───────────────
+    -- ── CO ! / NC ! Reset buttons (above notes) ──────────────────────────────
     local RESET_BOX_BD = {
         bgFile   = "Interface\\ChatFrame\\ChatFrameBackground",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -635,7 +636,7 @@ function PBM.CreateCharSheet(config)
     local resetBtnW   = 26
     local resetBtnH   = 18
     local resetBtnGap = 4
-    local resetTotalW = resetBtnW * 2 + resetBtnGap  -- 34px, coincideix amb PVP_HDR_W
+    local resetTotalW = resetBtnW * 2 + resetBtnGap  -- 34px, matches PVP_HDR_W
 
     local coResetBtn = CreateFrame("Button", nil, menu)
     coResetBtn:SetSize(resetBtnW, resetBtnH)
@@ -649,7 +650,7 @@ function PBM.CreateCharSheet(config)
     coResetLbl:SetTextColor(0.78, 0.61, 0.23, 1)
     coResetLbl:SetAllPoints()
     coResetLbl:SetJustifyH("CENTER")
-    coResetLbl:SetText("CO")
+    coResetLbl:SetText(PBM_L["CO"])
     coResetBtn:SetScript("OnClick", function()
         PBM.SendToBot("co !", menu.botName or "")
     end)
@@ -657,9 +658,9 @@ function PBM.CreateCharSheet(config)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffFFD100Reiniciar estratègies de CO|r")
-        GameTooltip:AddLine("Restableix les estratègies de combat als valors per defecte.", 1, 1, 1)
-        GameTooltip:AddLine("Les estratègies de fora de combat es mantenen.", 1, 1, 1)
+        GameTooltip:SetText("|cffFFD100" .. PBM_L["Reset CO Strategies"] .. "|r")
+        GameTooltip:AddLine(PBM_L["Resets combat strategies to defaults."], 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Non-combat strategies are preserved."], 1, 1, 1)
         GameTooltip:Show()
     end)
     coResetBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -676,7 +677,7 @@ function PBM.CreateCharSheet(config)
     ncResetLbl:SetTextColor(0.78, 0.61, 0.23, 1)
     ncResetLbl:SetAllPoints()
     ncResetLbl:SetJustifyH("CENTER")
-    ncResetLbl:SetText("NC")
+    ncResetLbl:SetText(PBM_L["NC"])
     ncResetBtn:SetScript("OnClick", function()
         PBM.SendToBot("nc !", menu.botName or "")
     end)
@@ -684,9 +685,9 @@ function PBM.CreateCharSheet(config)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:SetFrameLevel(menu:GetFrameLevel() + 20)
         GameTooltip:ClearLines()
-        GameTooltip:SetText("|cffFFD100Reiniciar estratègies de NC|r")
-        GameTooltip:AddLine("Restableix les estratègies de fora de combat als valors per defecte.", 1, 1, 1)
-        GameTooltip:AddLine("Les estratègies de combat es mantenen.", 1, 1, 1)
+        GameTooltip:SetText("|cffFFD100" .. PBM_L["Reset NC Strategies"] .. "|r")
+        GameTooltip:AddLine(PBM_L["Resets non-combat strategies to defaults."], 1, 1, 1)
+        GameTooltip:AddLine(PBM_L["Combat strategies are preserved."], 1, 1, 1)
         GameTooltip:Show()
     end)
     ncResetBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
@@ -702,7 +703,7 @@ function PBM.CreateCharSheet(config)
     resetHdrLbl:SetTextColor(0.78, 0.61, 0.23, 1)
     resetHdrLbl:SetAllPoints()
     resetHdrLbl:SetJustifyH("CENTER")
-    resetHdrLbl:SetText("Reset")
+    resetHdrLbl:SetText(PBM_L["Reset"])
 
     menu:Hide()
     return menu, catcher
@@ -756,19 +757,19 @@ function PBM.ShowCharSheet(menu, catcher, row, leftExt)
 
     if menu.talentsMenu then menu.talentsMenu:Hide() end
 
-    -- Actualitza la icona d'especialització a partir de les dades de la fila
+    -- Update spec icon from row data
     local specName = rowData and rowData.spec or ""
     local specIcon = PBM.SPEC_ICONS and PBM.SPEC_ICONS[specName]
     if menu.specBtn then
         menu.specBtn.icon:SetTexture(specIcon or "Interface\\Icons\\INV_Misc_QuestionMark")
     end
 
-    -- Actualitza la cel·la de professió
+    -- Refresh prof cell
     if menu.profCell then
         PBM.RefreshProfCell(menu.profCell, menu.botName or "")
     end
 
-    -- Omple la barra d'equipament a partir de les dades de la fila
+    -- Populate gear bar from row data
     if menu.hdr and rowData then
         local h = menu.hdr
         local gsval = rowData.gs or 0
@@ -789,7 +790,7 @@ function PBM.ShowCharSheet(menu, catcher, row, leftExt)
         menu._gearLinks = rowData.ilvlLink
     end
 
-    -- Neteja la visualització d'estratègies i torna a consultar
+    -- Clear strategy display and re-query
     if menu.clearStratDisplay then menu.clearStratDisplay() end
 
     local botName = menu.botName

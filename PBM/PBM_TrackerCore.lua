@@ -3680,7 +3680,11 @@ local function BuildFrameBG()
     title:SetPoint("TOPLEFT", f, "TOPLEFT", 10, -12)
     title:SetPoint("TOPRIGHT", f, "TOPRIGHT", -280, -12)
     title:SetJustifyH("LEFT")
-    title:SetText("|cffC69B3A"..PBM_L["Playerbot Manager"].."|r |cffffffff"..PBM_L["- v1.4"].."|r")
+<<<<<<< HEAD
+    title:SetText("|cffC69B3A"..PBM_L["Playerbot Manager"].."|r |cffffffff"..PBM_L["- v1.41"].."|r")
+=======
+    title:SetText("|cffC69B3APlayerbot Manager|r |cffffffff- v1.41|r")
+>>>>>>> upstream/master
     local closeBtn = CreateFrame("Button", "LichborneCloseBtn", f, "UIPanelCloseButton")
     closeBtn:SetPoint("TOPRIGHT", f, "TOPRIGHT", 2, 2)
     closeBtn:SetScript("OnClick", function() f:Hide() end)
